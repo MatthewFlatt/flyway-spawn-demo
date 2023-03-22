@@ -6,11 +6,11 @@ This demo is based on a tutorial from the Flyway documentation, [Testing Flyway 
 
 The main difference between this demo and the original is the method used to take a production snapshot. In the original demo, the data was copied as is:
 
-![Flyway Demo](./images/flyway_demo.png)
+![Flyway Demo](./images/flyway_demo.jpg)
 
 In our version, we save dumps from a masked database that was created with TDK:
 
-![Our Demo](./images/our_demo.png)
+![Our Demo](./images/our_demo.jpg)
 
 TDK configuration can be found in the `./tdk` directory. Here is an example of the configuration for the `customer` table:
 
