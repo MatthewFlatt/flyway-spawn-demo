@@ -4,7 +4,37 @@ This repository is a demo example that shows how to use [Flyway](https://flywayd
 
 This demo is based on a tutorial from the Flyway documentation, [Testing Flyway migrations in a CI pipeline](https://flywaydb.org/documentation/tutorials/migrationtesting). We use Synthesized TDK here to mask production data, ensuring that it does not leave the production environment.
 
-TDK configuration can be found in the `./tdk` directory. As you can see, we mask all columns by default, and on top of that, we create realistic names, emails, and addresses.
+The main difference between this demo and the original is the method used to take a production snapshot. In the original demo, the data was copied as is:
+
+![Flyway Demo](./images/flyway_demo.png)
+
+In our version, we save dumps from a masked database that was created with TDK:
+
+![Our Demo](./images/our_demo.png)
+
+TDK configuration can be found in the `./tdk` directory. Here is an example of the configuration for the `customer` table:
+
+```yaml
+default_config:
+  mode: MASKING
+
+cycle_resolution_strategy: DELETE_NOT_REQUIRED
+table_truncation_mode: TRUNCATE
+schema_creation_mode: DO_NOT_CREATE
+safety_mode: "RELAXED"
+
+tables:
+  - table_name_with_schema: "public.customer"
+    transformations:
+      - columns: [ "first_name", "last_name", "email" ]
+        params:
+          type: "person_generator"
+          column_templates: [ "${first_name}", "${last_name}", "${email}" ]
+```
+
+In this example, we mask all columns by default and additionally generate realistic values for customers.
+
+To view the full configuration, check the `./tdk/config.yaml` file.
 
 ## Table of contents
 
