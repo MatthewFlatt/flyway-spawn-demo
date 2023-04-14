@@ -18,5 +18,6 @@ jobs:
         env:
           SPAWNCTL_ACCESS_TOKEN: ${{ secrets.SPAWNCTL_ACCESS_TOKEN }}
           PAGILA_HOST: ${{ secrets.PAGILA_HOST }}
+          PAGILA_PORT: ${{ secrets.PAGILA_PORT }}
           PAGILA_USERNAME: ${{ secrets.PAGILA_ADMIN_USERNAME }}
           PAGILA_PASSWORD: ${{ secrets.PAGILA_ADMIN_PASSWORD }}

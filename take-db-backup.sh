@@ -39,14 +39,14 @@ docker pull postgres:13-alpine > /dev/null 2>&1
 echo
 echo "Copying schema..."
 
-docker run --net=host --rm -v "$PWD"/backups:/backups/ -e PGPASSWORD="$PAGILA_PASSWORD" postgres:13-alpine pg_dump -h "$PAGILA_HOST" -p 5432 -U "$PAGILA_USERNAME" -C -O -s -f /backups/pagila_schema.sql "$databaseName"
+docker run --net=host --rm -v "$PWD"/backups:/backups/ -e PGPASSWORD="$PAGILA_PASSWORD" postgres:13-alpine pg_dump -h "$PAGILA_HOST" -p "$PAGILA_PORT" -U "$PAGILA_USERNAME" -C -O -s -f /backups/pagila_schema.sql "$databaseName"
 docker run --net=host --rm -v "$PWD"/backups:/backups/ -e PGPASSWORD="$tmpDbPassword" postgres:13-alpine psql -h "$tmpDbHost" -p "$tmpDbPort" -U "$tmpDbUser" -f /backups/pagila_schema.sql
 
 echo
 echo "Transforming prod database using TDK into tmp database..."
 
 tdk \
-    --input-url="jdbc:postgresql://$PAGILA_HOST:5432/pagila" --input-username="$PAGILA_USERNAME" --input-password="$PAGILA_PASSWORD" \
+    --input-url="jdbc:postgresql://$PAGILA_HOST:$PAGILA_PORT/pagila" --input-username="$PAGILA_USERNAME" --input-password="$PAGILA_PASSWORD" \
     --output-url="jdbc:postgresql://$tmpDbHost:$tmpDbPort/pagila" --output-username="$tmpDbUser" --output-password="$tmpDbPassword" \
     --config-file "$PWD"/tdk/config.yaml
 
@@ -56,18 +56,18 @@ echo "Restoring staff-store links..."
 docker run --net=host --rm -v "$PWD"/tdk:/tdk/ -e PGPASSWORD="$tmpDbPassword" postgres:13-alpine psql -h "$tmpDbHost" -p "$tmpDbPort" -U "$tmpDbUser" -f /tdk/set_staff_stores.sql "$databaseName"
 
 echo
-echo "Backing-up tmp database..."
-
-docker run --net=host --rm -v "$PWD"/backups:/backups/ -e PGPASSWORD="$tmpDbPassword" postgres:13-alpine pg_dump -h "$tmpDbHost" -p "$tmpDbPort" -U "$tmpDbUser" -C -f /backups/pagila.sql "$databaseName"
-
-spawnctl delete data-container "$tmpDbContainerName" --accessToken "$SPAWNCTL_ACCESS_TOKEN" -q
-echo "Successfully cleaned up the Spawn data container '$tmpDbContainerName'"
+echo "Saving temporary data container..."
+spawnctl save data-container $tmpDbContainerName
 
 echo "Creating Spawn data image..."
 echo
 
-pagilaImageName=$(spawnctl create data-image --file ./pagila-backup.yaml --lifetime 336h --accessToken "$SPAWNCTL_ACCESS_TOKEN" -q)
+pagilaImageName=$(spawnctl graduate data-container $tmpDbContainerName --revision "rev.0" --lifetime 336h --name "Pagila" --tag "masked" --accessToken "$SPAWNCTL_ACCESS_TOKEN" -q)
 
 echo "Successfully created Spawn data image '$pagilaImageName'"
+
+spawnctl delete data-container "$tmpDbContainerName" --accessToken "$SPAWNCTL_ACCESS_TOKEN" -q
+echo "Successfully cleaned up the Spawn data container '$tmpDbContainerName'"
+
 echo
-echo "Successfully backed up Pagila database"
+
