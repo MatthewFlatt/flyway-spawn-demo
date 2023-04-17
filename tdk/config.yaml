@@ -30,3 +30,6 @@ tables:
         params:
           type: "address_generator"
           column_templates: [ "${house_number} ${street_name}", "${zip_code}" ]
+
+  - table_name_with_schema: "public.flyway_schema_history"
+    mode: "KEEP"
