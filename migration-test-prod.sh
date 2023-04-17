@@ -7,7 +7,7 @@ curl -sL https://run.spawn.cc/install | sh > /dev/null 2>&1
 export PATH=$HOME/.spawnctl/bin:$PATH
 echo "spawnctl successfully installed"
 
-export SPAWN_PAGILA_IMAGE_NAME=Pagila:prod
+export SPAWN_PAGILA_IMAGE_NAME=Pagila:masked
 
 echo
 echo "Creating Pagila backup Spawn data container from image '$SPAWN_PAGILA_IMAGE_NAME'..."
@@ -28,7 +28,7 @@ docker pull flyway/flyway > /dev/null 2>&1
 echo
 echo "Starting migration of database with flyway"
 
-docker run --net=host --rm -v "$PWD"/sql:/flyway/sql flyway/flyway migrate -baselineOnMigrate="true" -baselineVersion="1.012" -url="jdbc:postgresql://$pagilaHost:$pagilaPort/$databaseName" -user="$pagilaUser" -password="$pagilaPassword"
+docker run --net=host --rm -v "$PWD"/sql:/flyway/sql flyway/flyway migrate -url="jdbc:postgresql://$pagilaHost:$pagilaPort/$databaseName" -user="$pagilaUser" -password="$pagilaPassword"
 
 echo "Successfully migrated 'Pagila' database"
 echo
