@@ -62,7 +62,7 @@ spawnctl save data-container $tmpDbContainerName
 echo "Creating Spawn data image..."
 echo
 
-pagilaImageName=$(spawnctl graduate data-container $tmpDbContainerName --revision "rev.0" --name "Pagila" --tag "masked" --accessToken "$SPAWNCTL_ACCESS_TOKEN" -q)
+pagilaImageName=$(spawnctl graduate data-container $tmpDbContainerName --revision "rev.1" --name "Pagila" --tag "masked" --accessToken "$SPAWNCTL_ACCESS_TOKEN" -q)
 
 echo "Successfully created Spawn data image '$pagilaImageName'"
 
